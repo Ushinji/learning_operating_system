@@ -1,0 +1,19 @@
+     1                                  ; ------
+     2                                  ; IPLへJMP命令
+     3                                  ; ------
+     4                                  ; BPB   (BIOS Parameter Block)
+     5                                  ; ------
+     6                                  ; IPL   (Initial Program Loader)
+     7                                  ; ------
+     8                                  
+     9                                  entry:
+    10 00000000 EB58                            jmp     ipl
+    11                                          
+    12                                          ; BPB領域の初期化
+    13                                          ; 90バイト分、NOP(CPUの無操作命令: 0x90)で埋める
+    14 00000002 90<rept>                        times 90 - ($ - $$) db 0x90
+    15                                  ipl:
+    16 0000005A EBFE                            jmp     $
+    17                                  
+    18 0000005C 00<rept>                        times 510 - ($ - $$) db 0x00
+    19 000001FE 55AA                            db 0x55, 0xAA
