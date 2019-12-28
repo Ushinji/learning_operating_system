@@ -25,9 +25,9 @@ memcpy:
     mov     bp sp
 
     ; レジスタの保存
-    push    cx
-    push    si
-    push    di
+    push    cx              ;CI: Count Register
+    push    si              ;SI: Source Index
+    push    di              ;DI: Destination Index
 
     ; バイト単位でのコピー
     ; movsbは、DIレジスタが示すアドレスに対してSIレジスタが示すアドレスへコピーする。
