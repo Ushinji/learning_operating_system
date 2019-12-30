@@ -21,6 +21,11 @@ get_mem_info:
         push di
         push bp
 
+ALIGN 4, db 0
+.b0:    times E820_RECORD_SIZE db 0
+        cdecl puts, .s0
+        
+        ; メモリ情報取得開始
         mov bp, 0
         mov ebx, 0
 .10L:
@@ -57,18 +62,37 @@ get_mem_info:
 .15E:
         cmp ebx, 0
         jz  .16E
-
+        
         inc bp
         and bp, 0x07
         jnz .16E
+        
         cdecl puts, .s2
+
         mov ah, 0x10
         int 0x16
+        
         cdecl puts, .s3
 .16E:
         cmp ebx, 0
         jne .10L
 .10E:
+        cdecl puts, .s1
+        
+; レジスタ復帰
+        pop bp
+        pop di
+        pop si
+        pop edx
+        pop ecx
+        pop ebx
+        pop eax
 
-.s2:    db "<more...>", 0
-.s3:    db 0x0D, "           ", 0x0D, 0
+        ret
+
+; データ定義
+.s0:	db " E820 Memory Map:", 0x0A, 0x0D
+	db " Base_____________ Length___________ Type____", 0x0A, 0x0D, 0
+.s1:	db " ----------------- ----------------- --------", 0x0A, 0x0D, 0
+.s2:    db " <more...>", 0
+.s3:    db 0x0D, "          ", 0x0D, 0

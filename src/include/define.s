@@ -2,4 +2,5 @@
     BOOT_SIZE        equ    (1024 * 8)              ; ブートコードのサイズ
     SECT_SIZE        equ    (512)                   ; セクタサイズ
     BOOT_SECT        equ    (BOOT_SIZE / SECT_SIZE) ; ブートプログラムのセクタ数
+    
     E820_RECORD_SIZE equ    20                      ; 取得したメモリ情報を格納する領域サイズ

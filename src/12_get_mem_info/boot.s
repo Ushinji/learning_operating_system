@@ -76,6 +76,7 @@ ACPI_DATA:
 %include        "../modules/real/get_drive_params.s"
 %include        "../modules/real/get_font_adr.s"
 %include        "../modules/real/get_mem_info.s"
+%include        "../modules/real/put_mem_info.s"
 
 stage_2:
         cdecl   puts, .s0
