@@ -49,7 +49,7 @@ KBC_data_write:
     ret
 
 ; --------------------------------------
-; void KBC_read_data();
+; void KBC_data_read();
 ; KBCデータを読み込む
 ;
 ; @return       : 成功(0以外), 失敗(0)
@@ -64,7 +64,7 @@ KBC_data_write:
 ; BP+ 0 | BP
 ; -----------------
 
-KBC_read_data:
+KBC_data_read:
     ; スタックフレームの構築
     push bp
     mov bp, sp

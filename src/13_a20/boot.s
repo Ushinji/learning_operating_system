@@ -164,7 +164,7 @@ stage_4rd:
 
         ; 出力ポート取得
         cdecl KBC_cmd_write, 0xD0  ; 読み込みコマンド実行
-        cdecl KBC_read_data, .key ; データ読み込み実行
+        cdecl KBC_data_read, .key ; データ読み込み実行
 
         ; 出力ポートに対して、A20ゲートを有効化(BL |= 0x02)
         mov bl, [.key]
@@ -172,7 +172,7 @@ stage_4rd:
 
         ; 変更後の出力ポートを書き込み
         cdecl KBC_cmd_write, 0xD1 ; 書き込みコマンド実行
-        cdecl KBC_read_data, bx  ; データ書き込み実行
+        cdecl KBC_data_read, bx  ; データ書き込み実行
 
         ; 割り込み、キーボード無効化を解除
         cdecl KBC_cmd_write, 0xAE
