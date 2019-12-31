@@ -83,8 +83,13 @@ KBC_read_data:
                         ; ????
     cmp cx, 0           ; タイムアウト判定    
     jz  .20E
+    
+    ; データポート(0x60)に対して、データ取得を実行
+    mov ah, 0x00
+    in al, 0x60
 
-    mov di, [bp + 4]    ; 取得データを読み込みデータバッファへ設定(data)
+    ; 取得データを読み込みデータバッファへ設定(data)
+    mov di, [bp + 4]
     mov [di + 0], ax
 .20E:
     mov ax, cx          ; return CX; CXレジスタが0以外の場合は書き込みされている
