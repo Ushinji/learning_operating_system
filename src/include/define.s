@@ -4,3 +4,6 @@
     BOOT_SECT        equ    (BOOT_SIZE / SECT_SIZE) ; ブートプログラムのセクタ数
     
     E820_RECORD_SIZE equ    20                      ; 取得したメモリ情報を格納する領域サイズ
+
+    KERNEL_LOAD      equ    0x0010_1000
+    KERNEL_SIZE      equ    (1024 * 8)
