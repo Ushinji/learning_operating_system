@@ -32,9 +32,12 @@ lba_chs:
     push si
     push di
     
+    mov si, [bp + 4]
+    mov di, [bp + 6]
+
     ; シリンダあたりのセクタ数を計算
     mov al, [si + drive.head]   ; AL: 最大ヘッド数
-    mul byte, [si + drive.sect] ; AX: 最大ヘッド数(AL)×最大セクタ数
+    mul byte [si + drive.sect] ; AX: 最大ヘッド数(AL)×最大セクタ数
     mov bx, ax                  ; BX: シリンダあたりのセクタ数
 
     ; 指定されたLBAのシリンダ番号を計算
@@ -52,11 +55,12 @@ lba_chs:
     ; セクタ番号の保存
     movzx dx, ah                ; セクタ番号を2バイト拡張してDXへ保存
     inc dx                      ; セクタ番号は1始まりなので+1
-    mov [di + drive.sect], dx
 
     ; ヘッド番号の保存
     mov ah, 0x00                ; AHを0指定し、AX(AH+AL)で2バイトのヘッド番号データとして扱う
+
     mov [di + drive.head], ax
+    mov [di + drive.sect], dx
 
     ; レジスタの復帰
     pop di
