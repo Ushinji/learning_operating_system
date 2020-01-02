@@ -1,5 +1,5 @@
 ; **********************************************
-; A20ゲートの有効化する
+; カーネルを読み込む
 ; **********************************************
 %include "../include/macro.s"
 %include "../include/define.s"
@@ -78,6 +78,8 @@ ACPI_DATA:
 %include        "../modules/real/get_mem_info.s"
 %include        "../modules/real/put_mem_info.s"
 %include        "../modules/real/kbc.s"
+%include        "../modules/real/lba_chs.s"
+%include        "../modules/real/read_lba.s"
 
 stage_2:
         cdecl   puts, .s0
@@ -237,8 +239,7 @@ stage_4rd:
         ; 文字列表示
         cdecl puts, .s3
 
-        ; 処理終了
-        jmp     $
+        jmp stage_5rd
 
 .s0:    db "4nd stage...", 0x0A, 0x0D, 0
 .s1:    db " A20 Gate Enabled.", 0x0A, 0x0D, 0
@@ -249,6 +250,26 @@ stage_4rd:
 
 ; KBC出力ポートの保存バッファ
 .key:   dw 0
+
+stage_5rd:
+        ; 5rd 処理開始
+        cdecl   puts, .s0
+
+        ; カーネル読み込み
+        ; AX(読み込んだセクタ数) = read_lba(drive, lba, sect, dst)
+        cdecl read_lba, BOOT, BOOT_SECT, KERNEL_SECT, BOOT_END
+        cmp ax, KERNEL_SECT
+.10Q:
+        jz .10E
+.10T:   
+        cdecl puts, .e0
+        call reboot
+.10E:
+        ; 処理終了
+        jmp     $
+
+.s0:    db "5nd stage...", 0x0A, 0x0D, 0
+.e0:    db " Faliure load kernel...", 0x0A, 0x0D, 0
 
         ; ブートプログラムを8Kバイトとして定義
         times BOOT_SIZE - ($ - $$) db 0        ; 8Kバイト
