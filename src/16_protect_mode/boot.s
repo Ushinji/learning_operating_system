@@ -287,10 +287,22 @@ stage_6rd:
         int 0x10
 
         ; 処理終了
-        jmp     $
+        jmp     stage_7rd
 
 .s0:    db "6nd stage...", 0x0A, 0x0D, 0x0A, 0x0D
         db "[Push SPACE Key to protect mode...]", 0x0A, 0x0D, 0
 
-        ; ブートプログラムを8Kバイトとして定義
+stage_7rd:
+        ; 7rd 処理開始
+        cdecl   puts, .s0
+
+        ; 処理終了
+        jmp     $
+
+
+.s0:    db "7nd stage...", 0x0A, 0x0D, 0x0A, 0x0D
+
+; -------------
+; パディング
+; -------------
         times BOOT_SIZE - ($ - $$) db 0        ; 8Kバイト
