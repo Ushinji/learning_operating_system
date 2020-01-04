@@ -292,15 +292,78 @@ stage_6rd:
 .s0:    db "6nd stage...", 0x0A, 0x0D, 0x0A, 0x0D
         db "[Push SPACE Key to protect mode...]", 0x0A, 0x0D, 0
 
+
+; --------------------------------
+; セグメントディスクリプターの配列
+; --------------------------------
+ALIGN 4, db 0
+GDT:    dq 0x00_0_0_0_0_000000_0000     ; NULL
+.cs:    dq 0x00_C_F_9_A_000000_FFFF     ; CODE 4G(実行/Read可)
+.ds:    dq 0x00_C_F_9_2_000000_FFFF     ; DATA 4G(Read/Write可)
+.gdt_end:
+
+; --------------------------------
+; セレクタ
+; --------------------------------
+SEL_CODE equ GDT.cs - GDT               ; コード用セレクタ
+SEL_DATA equ GDT.ds - GDT               ; データ用セレクタ
+
+; --------------------------------
+; GDTR(Global Discripter Table Registor)
+; --------------------------------
+GDTR: dw GDT.gdt_end - GDT - 1          ; ディスクリプタテーブルのリミット
+      dd GDT                            ; ディスクリプタテーブルのアドレス
+
+; --------------------------------
+; IDT(擬似: 割り込み禁止にするためだけ)
+; --------------------------------
+IDTR: dw 0                              ; IDTリミット
+      dd 0                              ; IDTアドレス
+
 stage_7rd:
-        ; 7rd 処理開始
-        cdecl   puts, .s0
+        ; 割り込み禁止
+        cli
 
-        ; 処理終了
-        jmp     $
+        ; ディスクリプタテーブルの読み込み
+        lgdt [GDTR]     ; GDTRをロード
+        lidt [IDTR]     ; 割り込み用のディスクリプタテーブルを読み込み
+
+        ; プロテクトモードへ移行
+        mov eax, cr0    
+        or  ax, 1
+        mov cr0, eax
+
+        ; リアルモードで読み込んだコードをCPU内部からクリアする
+        jmp $ + 2
+
+        ; セグメント間ジャンプ
+[BITS 32]
+        ; オペランドサイズオーバーライドプレフィックスを設定し、32ビット値を正しく読み込めるようにする
+        DB 0x66
+        jmp SEL_CODE:CODE_32
 
 
-.s0:    db "7nd stage...", 0x0A, 0x0D, 0x0A, 0x0D
+; --------------------------------
+; 32ビットコード開始
+; --------------------------------
+CODE_32:
+        ; セレクタ初期化。各セグメントレジスタに対して、データ用のセグメントディスクリプタ(へのオフセット)を設定。
+        mov ax, SEL_DATA
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs, ax
+        mov ss, ax
+
+        ; カーネル部をコピー
+        mov ecx, (KERNEL_SIZE) / 4      ; ECX = 4バイト単位でコピー
+        mov esi, BOOT_END               ; ESI = カーネル部の先頭アドレス
+        mov edi, KERNEL_LOAD            ; EDI = カーネルのロード先
+        cld                             ; DFクリア(+方向にコピー)
+        rep movsd                       ; while(ECX++) { *EDI++ = *ESI++; }
+
+        ; カーネル処理に移行
+        jmp     KERNEL_LOAD
 
 ; -------------
 ; パディング
